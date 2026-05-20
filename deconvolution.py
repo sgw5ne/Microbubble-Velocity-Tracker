@@ -4,10 +4,6 @@ import numpy as np
 
 
 class Deconvolver:
-    """
-    Optional Richardson–Lucy deconvolution.
-    Provide a PSF (float32 2D kernel) to enable.
-    """
 
     def __init__(self, psf: Optional[np.ndarray] = None, rl_iterations: int = 10):
         self.psf = None if psf is None else self._normalize_psf(psf)
