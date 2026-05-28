@@ -285,5 +285,5 @@ class MicrobubbleTrackingApp:
 
         cap.release()
         cv2.destroyAllWindows()
-        self.logger.save("velocities.json")
+        self.logger.save("velocities.csv")
         self.logger.plot("velocity_distributions.png")

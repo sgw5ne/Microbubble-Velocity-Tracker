@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import csv
 import math
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -56,50 +57,48 @@ class VelocityLogger:
 
     def save(self, path: str | Path) -> None:
         """
-        Save raw per-track samples plus summary statistics to JSON.
+        save velocities as csv file instead of json
 
-        Schema:
-        {
-          "unit": "µm/s",
-          "tracks": {
-            "1": {"samples": [...], "mean": ..., "std": ..., "median": ..., "n": ...},
-            ...
-          },
-          "global": {"mean": ..., "std": ..., "median": ..., "n": ...}
-        }
+        column organization: track_id,sample_idx,speed,track_mean,track_std,track_median,track_n
         """
         path = Path(path)
+
         unit_str = f"{self.unit_label}/s"
 
-        tracks_out = {}
-        all_speeds: List[float] = []
+        with path.open("w", newline="") as f:
+            writer = csv.writer(f)
 
-        for tid, samples in self._samples.items():
-            arr = np.array(samples, dtype=float)
-            all_speeds.extend(samples)
-            tracks_out[str(tid)] = {
-                "samples": arr.tolist(),
-                "mean":   float(arr.mean()),
-                "std":    float(arr.std()),
-                "median": float(np.median(arr)),
-                "n":      len(arr),
-            }
+            # header row
+            writer.writerow([
+                "track_id",
+                "sample_idx",
+                f"speed ({unit_str})",
+                f"track_mean ({unit_str})",
+                f"track_std ({unit_str})",
+                f"track_median ({unit_str})",
+                "track_n",
+            ])
 
-        global_arr = np.array(all_speeds, dtype=float)
-        global_stats = (
-            {
-                "mean":   float(global_arr.mean()),
-                "std":    float(global_arr.std()),
-                "median": float(np.median(global_arr)),
-                "n":      len(global_arr),
-            }
-            if len(global_arr) > 0
-            else {"mean": None, "std": None, "median": None, "n": 0}
-        )
+            for tid, samples in self._samples.items():
+                arr = np.array(samples, dtype=float)
 
-        payload = {"unit": unit_str, "tracks": tracks_out, "global": global_stats}
-        path.write_text(json.dumps(payload, indent=2))
-        print(f"[VelocityLogger] saved → {path}")
+                mean = float(arr.mean())
+                std = float(arr.std())
+                median = float(np.median(arr))
+                n = len(arr)
+
+                for idx, speed in enumerate(samples):
+                    writer.writerow([
+                        tid,
+                        idx,
+                        speed,
+                        mean,
+                        std,
+                        median,
+                        n,
+                    ])
+
+        print(f"[VelocityLogger] saved CSV → {path}")
 
     # ------------------------------------------------------------------
     # Plotting
