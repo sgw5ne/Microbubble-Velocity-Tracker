@@ -4,5 +4,5 @@ ENV/
 pycache/
 __pycache__/
 TODO.md
-velocities.csv/
-velocity_distributions.png/
+velocities.csv
+velocity_distributions.png
