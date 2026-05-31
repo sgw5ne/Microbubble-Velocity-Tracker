@@ -3,4 +3,6 @@ venv/
 ENV/
 pycache/
 __pycache__/
-TODO/
+TODO.md
+velocities.csv/
+velocity_distributions.png/
