@@ -1,17 +1,20 @@
 from __future__ import annotations
 from typing import Optional, Tuple
+import cv2
+try:
+    import tkinter as tk
+    from tkinter import filedialog
+    TKINTER_AVAILABLE = True
+except ImportError:
+    TKINTER_AVAILABLE = False
 
 
 class FilePicker:
     @staticmethod
     def pick_video_file() -> Optional[str]:
-        """Open a native file dialog to select a video. Returns path or None if cancelled."""
-        try:
-            import tkinter as tk
-            from tkinter import filedialog
-        except Exception:
-            print("Tkinter not available. On Linux try: sudo apt-get install python3-tk")
-            return None
+        if not TKINTER_AVAILABLE:
+            print("File dialog unavailable (tkinter not imported properly)")
+            return None        
 
         root = tk.Tk()
         root.withdraw()
@@ -26,11 +29,13 @@ class FilePicker:
         return path if path else None
 
 
+
+# rewrite this to open frame and draw line for calibrating rather than manually entering pixel distance
 class ScaleCalibrator:
     @staticmethod
     def prompt() -> Tuple[Optional[float], str]:
         """
-        Manual calibration: user enters scale bar pixels and real-world distance.
+        calibrating using user inputted pixels and correlated distance
         Returns (units_per_px, unit_label). If skipped, returns (None, "px").
         """
         print("\n=== Scale Calibration (optional) ===")
